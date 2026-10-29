@@ -1,0 +1,23 @@
+services:
+  staging-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: iris_stage
+      POSTGRES_PASSWORD: ${STAGING_DB_PASSWORD:?set in .env, never commit}
+      POSTGRES_DB: iris_staging_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iris_stage -d iris_staging_db"]
+      interval: 5s
+      retries: 10
+  loader:
+    build: .
+    depends_on:
+      staging-db: {condition: service_healthy}
+    environment:
+      IRIS_STAGING_DSN: postgresql://iris_stage:${STAGING_DB_PASSWORD}@staging-db:5432/iris_staging_db
+    volumes: ["./data:/data:ro", "./out:/app/out"]
+    command: ["--input", "/data/sample_rr.txt", "--config", "/app/config.yaml"]
+  tests:
+    build: .
+    entrypoint: ["python", "-m", "pytest", "-q"]
+    profiles: ["test"]

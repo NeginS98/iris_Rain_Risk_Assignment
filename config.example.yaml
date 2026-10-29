@@ -1,0 +1,9 @@
+# Thresholds in mm/h. Defaults follow DWD heavy-rain warning levels (verify against DWD docs).
+thresholds:
+  heavy: 15.0
+  very_heavy: 25.0
+  extreme: 40.0
+max_plausible_mm_h: 200.0   # values above this are rejected as implausible
+schema: iris_staging        # must start with "iris_staging"; iris_core is refused
+table: heavy_rainfall_risk
+# DSN is read from env var IRIS_STAGING_DSN (never put secrets in this file)
